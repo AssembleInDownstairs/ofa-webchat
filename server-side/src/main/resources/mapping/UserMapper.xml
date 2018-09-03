@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="webchat_gd.mapper.UserMapper">
+	<resultMap id="BaseResultMap" type="webchat_gd.entity.User">
+		<result column="user_id" jdbcType="VARCHAR" property="userId" />
+		<result column="user_account" jdbcType="VARCHAR" property="userAccount" />
+		<result column="password" jdbcType="VARCHAR" property="password" />
+		<result column="nickname" jdbcType="VARCHAR" property="nickname" />
+		<result column="phone" jdbcType="VARCHAR" property="phone" />
+		<result column="province" jdbcType="CHAR" property="province" />
+		<result column="city" jdbcType="CHAR" property="city" />
+		<result column="gender" jdbcType="CHAR" property="gender" />
+		<result column="birthday" jdbcType="TIMESTAMP" property="birthday" />
+		<result column="profile_photo" jdbcType="VARCHAR" property="profilePhoto" />
+		<result column="personal_profile" jdbcType="VARCHAR" property="personalProfile" />
+		<result column="user_status" jdbcType="CHAR" property="userStatus" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+	</resultMap>
+	<insert id="insert" parameterType="webchat_gd.entity.User">
+		insert into t_user (user_id,
+		user_account, password,
+		nickname, phone, province,
+		city, gender,
+		birthday,
+		profile_photo, personal_profile, user_status,
+		create_time)
+		values (#{userId,jdbcType=VARCHAR}, #{userAccount,jdbcType=VARCHAR},
+		#{password,jdbcType=VARCHAR},
+		#{nickname,jdbcType=VARCHAR},
+		#{phone,jdbcType=VARCHAR}, #{province,jdbcType=CHAR},
+		#{city,jdbcType=CHAR}, #{gender,jdbcType=CHAR},
+		#{birthday,jdbcType=TIMESTAMP},
+		#{profilePhoto,jdbcType=VARCHAR},
+		#{personalProfile,jdbcType=VARCHAR}, #{userStatus,jdbcType=CHAR},
+		#{createTime,jdbcType=TIMESTAMP})
+	</insert>
+	<insert id="insertSelective" parameterType="webchat_gd.entity.User">
+		insert into t_user
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="userId != null">
+				user_id,
+			</if>
+			<if test="userAccount != null">
+				user_account,
+			</if>
+			<if test="password != null">
+				password,
+			</if>
+			<if test="nickname != null">
+				nickname,
+			</if>
+			<if test="phone != null">
+				phone,
+			</if>
+			<if test="province != null">
+				province,
+			</if>
+			<if test="city != null">
+				city,
+			</if>
+			<if test="gender != null">
+				gender,
+			</if>
+			<if test="birthday != null">
+				birthday,
+			</if>
+			<if test="profilePhoto != null">
+				profile_photo,
+			</if>
+			<if test="personalProfile != null">
+				personal_profile,
+			</if>
+			<if test="userStatus != null">
+				user_status,
+			</if>
+			<if test="createTime != null">
+				create_time,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="userId != null">
+				#{userId,jdbcType=VARCHAR},
+			</if>
+			<if test="userAccount != null">
+				#{userAccount,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				#{password,jdbcType=VARCHAR},
+			</if>
+			<if test="nickname != null">
+				#{nickname,jdbcType=VARCHAR},
+			</if>
+			<if test="phone != null">
+				#{phone,jdbcType=VARCHAR},
+			</if>
+			<if test="province != null">
+				#{province,jdbcType=CHAR},
+			</if>
+			<if test="city != null">
+				#{city,jdbcType=CHAR},
+			</if>
+			<if test="gender != null">
+				#{gender,jdbcType=CHAR},
+			</if>
+			<if test="birthday != null">
+				#{birthday,jdbcType=TIMESTAMP},
+			</if>
+			<if test="profilePhoto != null">
+				#{profilePhoto,jdbcType=VARCHAR},
+			</if>
+			<if test="personalProfile != null">
+				#{personalProfile,jdbcType=VARCHAR},
+			</if>
+			<if test="userStatus != null">
+				#{userStatus,jdbcType=CHAR},
+			</if>
+			<if test="createTime != null">
+				#{createTime,jdbcType=TIMESTAMP},
+			</if>
+		</trim>
+	</insert>
+	<select id="selectUser" parameterType="webchat_gd.entity.User" resultMap="BaseResultMap">
+		SELECT
+			u.user_id,
+			u.user_account,
+			u.`password`,
+			u.nickname,
+			u.phone,
+			u.province,
+			u.city,
+			u.gender,
+			u.birthday,
+			u.profile_photo,
+			u.personal_profile,
+			u.user_status,
+			u.create_time
+		FROM
+			t_user u
+		<where>
+			<if test="userId != null and userId != ''">AND u.user_id = #{userId}</if>
+			<if test="userAccount != null and userAccount != ''">AND u.user_account = #{userAccount}</if>
+			<if test="password != null and password != ''">AND u.`password` = #{password}</if>
+			<if test="nickname != null and nickname != ''">AND u.nickname LIKE CONCAT('%', #{nickname}, '%')</if>
+			<if test="phone != null and phone != ''">AND u.phone LIKE CONCAT('%', #{phone}, '%')</if>
+			<if test="province != null and province != ''">AND u.province = #{province}</if>
+			<if test="city != null and city != ''">AND u.city = #{city}</if>
+			<if test="gender != null and gender != ''">AND u.gender = #{gender}</if>
+			<if test="birthday != null">AND u.birthday = #{birthday}</if>
+			<if test="profilePhoto != null and profilePhoto != ''">AND u.profile_photo = #{profilePhoto}</if>
+			<if test="personalProfile != null and personalProfile != ''">AND u.personal_profile = #{personalProfile}</if>
+			<if test="userStatus != null and userStatus != ''">AND u.user_status = #{userStatus}</if>
+			<if test="createTime != null">AND u.create_time = #{createTime}</if>
+		</where>
+	</select>
+</mapper>

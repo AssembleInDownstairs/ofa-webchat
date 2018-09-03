@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="webchat_gd.mapper.ChatMessageMapper">
+	<resultMap id="BaseResultMap" type="webchat_gd.entity.ChatMessage">
+		<result column="chat_message_id" jdbcType="VARCHAR" property="chatMessageId" />
+		<result column="user_id" jdbcType="VARCHAR" property="userId" />
+		<result column="chatter_id" jdbcType="VARCHAR" property="chatterId" />
+		<result column="message_type" jdbcType="CHAR" property="messageType" />
+		<result column="message_content" jdbcType="VARCHAR" property="messageContent" />
+		<result column="time_of_send" jdbcType="TIMESTAMP" property="timeOfSend" />
+	</resultMap>
+	
+	<resultMap id="contactUnreadMessageMap" type="webchat_gd.dto.ContactUnreadMessageDto">
+		<result column="user_id" property="userId" />
+		<result column="contact_id" property="contactId" />
+		<result column="last_contact_time" property="lastContactTime" />
+		<association property="unreadMessageNumber" column="userId=user_id,chatterId=contact_id,timeOfSend=last_contact_time" 
+			select="selectUnreadMessage"></association>
+		<association property="lastChatMessage" column="userId=user_id,chatterId=contact_id" select="selectLastChatMessage"></association>
+	</resultMap>
+	
+	<insert id="insert" parameterType="webchat_gd.entity.ChatMessage">
+		insert into t_chat_message
+		(chat_message_id, user_id, chatter_id,
+		message_type, message_content,
+		time_of_send
+		)
+		values (#{chatMessageId,jdbcType=VARCHAR},
+		#{userId,jdbcType=VARCHAR},
+		#{chatterId,jdbcType=VARCHAR},
+		#{messageType,jdbcType=CHAR}, #{messageContent,jdbcType=VARCHAR},
+		#{timeOfSend,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="webchat_gd.entity.ChatMessage">
+		insert into t_chat_message
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="chatMessageId != null">
+				chat_message_id,
+			</if>
+			<if test="userId != null">
+				user_id,
+			</if>
+			<if test="chatterId != null">
+				chatter_id,
+			</if>
+			<if test="messageType != null">
+				message_type,
+			</if>
+			<if test="messageContent != null">
+				message_content,
+			</if>
+			<if test="timeOfSend != null">
+				time_of_send,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="chatMessageId != null">
+				#{chatMessageId,jdbcType=VARCHAR},
+			</if>
+			<if test="userId != null">
+				#{userId,jdbcType=VARCHAR},
+			</if>
+			<if test="chatterId != null">
+				#{chatterId,jdbcType=VARCHAR},
+			</if>
+			<if test="messageType != null">
+				#{messageType,jdbcType=CHAR},
+			</if>
+			<if test="messageContent != null">
+				#{messageContent,jdbcType=VARCHAR},
+			</if>
+			<if test="timeOfSend != null">
+				#{timeOfSend,jdbcType=TIMESTAMP},
+			</if>
+		</trim>
+	</insert>
+	
+	<delete id="deleteChatMessage">
+		DELETE
+		FROM
+			t_chat_message
+		WHERE
+			chat_message_id = #{value}
+	</delete>
+	
+	<delete id="deleteChatMessageByUC">
+		DELETE
+		FROM
+			t_chat_message
+		WHERE
+			user_id = #{userId}
+		AND chatter_id = #{chatterId}
+	</delete>
+	
+	<select id="selectChatMessage" parameterType="webchat_gd.entity.ChatMessage" resultMap="BaseResultMap">
+		SELECT
+			cm.chat_message_id,
+			cm.user_id,
+			cm.chatter_id,
+			cm.message_type,
+			cm.message_content,
+			cm.time_of_send
+		FROM
+			t_chat_message cm
+		<where>
+			<if test="chatMessageId != null and chatMessageId != ''">AND cm.chat_message_id = #{chatMessageId}</if>
+			<if test="userId != null and userId != '' and chatterId != null and chatterId != ''"> AND ((cm.user_id = #{userId} AND cm.chatter_id = #{chatterId}) OR (cm.user_id = #{chatterId} AND cm.chatter_id = #{userId}))</if>
+			<if test="messageType != null and messageType != ''">AND cm.message_type = #{messageType}</if>
+			<if test="messageContent != null and messageContent != ''">AND cm.message_content LIKE CONCAT('%', #{messageContent}, '%')</if>
+			<if test="timeOfSend != null">AND cm.time_of_send = #{timeOfSend}</if>
+		</where>
+		ORDER BY
+			cm.time_of_send DESC
+	</select>
+	
+	<select id="selectContactUnreadMessage" parameterType="webchat_gd.dto.ContactUnreadMessageDto" resultMap="contactUnreadMessageMap">
+		SELECT
+			c.user_id,
+			c.contact_id,
+			c.last_contact_time
+		FROM
+			t_contact c
+		<where>
+			AND !ISNULL(c.last_contact_time)
+			<if test="userId != null and userId != ''">AND c.user_id = #{userId}</if>
+			<if test="contactId != null and contactId != ''">AND c.contact_id = #{contactId}</if>
+		</where>
+	</select>
+	
+	<select id="selectLastChatMessage" resultType="string">
+		SELECT
+			cm.message_content
+		FROM
+			t_chat_message cm
+		WHERE
+			cm.user_id = #{chatterId}
+		AND cm.chatter_id = #{userId}
+		ORDER BY
+			cm.time_of_send DESC
+		LIMIT 1
+	</select>
+	
+	<select id="selectUnreadMessage" resultType="int">
+		SELECT
+			count(1)
+		FROM
+			t_chat_message cm
+		WHERE
+			cm.user_id = #{chatterId}
+		AND cm.chatter_id = #{userId}
+		AND cm.time_of_send > #{timeOfSend}
+	</select>
+	
+	<select id="selectContactApplications" resultType="webchat_gd.dto.ContactApplicationDto">
+		SELECT
+			c.user_id as userId,
+			c.contact_id as contactId
+		FROM
+			t_contact c
+		WHERE
+			c.user_id = #{value}
+		AND ISNULL(c.last_contact_time)
+	</select>
+	
+</mapper>

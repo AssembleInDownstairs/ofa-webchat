@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="webchat_gd.mapper.ContactMapper">
+	<resultMap id="BaseResultMap" type="webchat_gd.entity.Contact">
+		<result column="contact_record_id" jdbcType="VARCHAR" property="contactRecordId" />
+		<result column="user_id" jdbcType="VARCHAR" property="userId" />
+		<result column="contact_id" jdbcType="VARCHAR" property="contactId" />
+		<result column="remark" jdbcType="VARCHAR" property="remark" />
+		<result column="add_time" jdbcType="TIMESTAMP" property="addTime" />
+		<result column="last_contact_time" jdbcType="TIMESTAMP"
+			property="lastContactTime" />
+	</resultMap>
+	<insert id="insert" parameterType="webchat_gd.entity.Contact">
+		insert into t_contact
+		(contact_record_id, user_id, contact_id,
+		remark, add_time,
+		last_contact_time
+		)
+		values (#{contactRecordId,jdbcType=VARCHAR},
+		#{userId,jdbcType=VARCHAR},
+		#{contactId,jdbcType=VARCHAR},
+		#{remark,jdbcType=VARCHAR}, #{addTime,jdbcType=TIMESTAMP},
+		#{lastContactTime,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="webchat_gd.entity.Contact">
+		insert into t_contact
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="contactRecordId != null">
+				contact_record_id,
+			</if>
+			<if test="userId != null">
+				user_id,
+			</if>
+			<if test="contactId != null">
+				contact_id,
+			</if>
+			<if test="remark != null">
+				remark,
+			</if>
+			<if test="addTime != null">
+				add_time,
+			</if>
+			<if test="lastContactTime != null">
+				last_contact_time,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="contactRecordId != null">
+				#{contactRecordId,jdbcType=VARCHAR},
+			</if>
+			<if test="userId != null">
+				#{userId,jdbcType=VARCHAR},
+			</if>
+			<if test="contactId != null">
+				#{contactId,jdbcType=VARCHAR},
+			</if>
+			<if test="remark != null">
+				#{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="addTime != null">
+				#{addTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="lastContactTime != null">
+				#{lastContactTime,jdbcType=TIMESTAMP},
+			</if>
+		</trim>
+	</insert>
+	
+	<delete id="deleteContact" parameterType="webchat_gd.entity.Contact">
+		DELETE
+		FROM
+			t_contact
+		<where>
+			<if test="contactRecordId != null and contactRecordId != ''"> AND contact_record_id = #{contactRecordId}</if>
+			<if test="userId != null and userId != ''"> AND user_id = #{userId}</if>
+			<if test="contactId != null and contactId != ''"> AND contact_id = #{contactId}</if>
+			<if test="remark != null and remark != ''"> AND remark LIKE CONCAT('%', #{remark}, '%')</if>
+			<if test="addTime != null"> AND add_time = #{addTime}</if>
+			<if test="lastContactTime != null"> AND last_contact_time = #{lastContactTime}</if>
+		</where>
+	</delete>
+	
+	<update id="updateContact" parameterType="webchat_gd.entity.Contact">
+		UPDATE t_contact
+		<set>
+			<if test="remark != null">
+				remark = #{remark},
+			</if>
+			<if test="addTime != null">
+				add_time = #{addTime},
+			</if>
+			<if test="lastContactTime != null">
+				last_contact_time = #{lastContactTime},
+			</if>
+		</set>
+		WHERE
+			user_id = #{userId}
+		AND contact_id = #{contactId}
+	</update>
+	
+	<select id="selectContact" parameterType="webchat_gd.entity.Contact" resultMap="BaseResultMap">
+		SELECT
+			c.contact_record_id,
+			c.user_id,
+			c.contact_id,
+			c.remark,
+			c.add_time,
+			c.last_contact_time
+		FROM
+			t_contact c
+		<where>
+			<if test="contactRecordId != null and contactRecordId != ''"> AND c.contact_record_id = #{contactRecordId} </if>
+			<if test="userId != null and userId != ''"> AND c.user_id = #{userId} </if>
+			<if test="contactId != null and contactId != ''"> AND c.contact_id = #{contactId} </if>
+			<if test="remark != null and remark != ''"> AND c.remark LIKE CONCAT('%', #{remark}, '%') </if>
+			<if test="addTime != null"> AND c.add_time = #{addTime} </if>
+			<if test="lastContactTime != null"> AND c.last_contact_time = #{lastContactTime} </if>
+		</where>
+	</select>
+	
+</mapper>

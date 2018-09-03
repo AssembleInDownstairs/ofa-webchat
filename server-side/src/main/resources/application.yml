@@ -1,0 +1,40 @@
+server:
+    port: 8080
+    contextPath: /webchat
+spring:
+    datasource:
+        name: ofa-webchat
+        url: jdbc:mysql://127.0.0.1:3306/ofa-webchat?useSSL=true&serverTimezone=UTC
+        username: root
+        password: '123'
+        # 使用druid数据源
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        filters: stat
+        maxActive: 20
+        initialSize: 1
+        maxWait: 60000
+        minIdle: 1
+        timeBetweenEvictionRunsMillis: 60000
+        minEvictableIdleTimeMillis: 300000
+        validationQuery: select 'x'
+        testWhileIdle: true
+        testOnBorrow: false
+        testOnReturn: false
+        poolPreparedStatements: true
+        maxOpenPreparedStatements: 20
+    resources:
+        static-locations: file:${files.location}
+mybatis:
+  mapperLocations: classpath:mapping/*.xml
+pagehelper:
+    helperDialect: mysql
+    reasonable: true
+    supportMethodsArguments: true
+    params: count=countSql
+logging:
+  level:
+    webchat_gd: debug
+files:
+  location: /home/documents/webchat_gd
+  imagePath: static/images

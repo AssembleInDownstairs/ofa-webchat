@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="webchat_gd.mapper.GroupMapper">
+	<resultMap id="BaseResultMap" type="webchat_gd.entity.Group">
+		<result column="group_id" property="groupId" />
+		<result column="group_code" property="groupCode" />
+		<result column="group_name" property="groupName" />
+		<result column="group_image" property="groupImage" />
+		<result column="administrator_id" property="administratorId" />
+		<result column="create_time" property="createTime" />
+		<result column="create_by" property="createBy" />
+	</resultMap>
+	<insert id="insert" parameterType="webchat_gd.entity.Group">
+		insert into t_group (group_id,
+		group_code, group_name,
+		group_image, administrator_id, create_time,
+		create_by)
+		values (#{groupId,jdbcType=VARCHAR},
+		#{groupCode,jdbcType=VARCHAR},
+		#{groupName,jdbcType=VARCHAR},
+		#{groupImage,jdbcType=VARCHAR}, #{administratorId,jdbcType=VARCHAR},
+		#{createTime,jdbcType=TIMESTAMP},
+		#{createBy,jdbcType=VARCHAR})
+	</insert>
+	<insert id="insertSelective" parameterType="webchat_gd.entity.Group">
+		insert into t_group
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="groupId != null">
+				group_id,
+			</if>
+			<if test="groupCode != null">
+				group_code,
+			</if>
+			<if test="groupName != null">
+				group_name,
+			</if>
+			<if test="groupImage != null">
+				group_image,
+			</if>
+			<if test="administratorId != null">
+				administrator_id,
+			</if>
+			<if test="createTime != null">
+				create_time,
+			</if>
+			<if test="createBy != null">
+				create_by,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="groupId != null">
+				#{groupId,jdbcType=VARCHAR},
+			</if>
+			<if test="groupCode != null">
+				#{groupCode,jdbcType=VARCHAR},
+			</if>
+			<if test="groupName != null">
+				#{groupName,jdbcType=VARCHAR},
+			</if>
+			<if test="groupImage != null">
+				#{groupImage,jdbcType=VARCHAR},
+			</if>
+			<if test="administratorId != null">
+				#{administratorId,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				#{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="createBy != null">
+				#{createBy,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	
+	<delete id="deleteGroup">
+		DELETE
+		FROM
+			t_group
+		WHERE
+			group_id = #{value}
+	</delete>
+	
+	<update id="updateGroup" parameterType="webchat_gd.entity.Group">
+		UPDATE t_group g
+		<set>
+			<if test="groupCode != null">
+			g.group_code = #{groupCode},
+			</if>
+			<if test="groupName != null">
+			g.group_name = #{groupName},
+			</if>
+			<if test="groupImage != null">
+			g.group_image = #{groupImage},
+			</if>
+			<if test="administratorId != null">
+			g.administrator_id = #{administratorId},
+			</if>
+			<if test="createTime != null">
+			g.create_time = #{createTime},
+			</if>
+			<if test="createBy != null">
+			g.create_by = #{createBy},
+			</if>
+		</set>
+		WHERE
+			g.group_id = #{groupId}
+	</update>
+	
+	<select id="selectGroup" parameterType="webchat_gd.entity.Group" resultMap="BaseResultMap">
+		SELECT
+			g.group_id,
+			g.group_code,
+			g.group_name,
+			g.group_image,
+			g.administrator_id,
+			g.create_time,
+			g.create_by
+		FROM
+			t_group g
+		<where>
+			<if test="groupId != null and groupId != ''">AND g.group_id = #{groupId}</if>
+			<if test="groupCode != null and groupCode != ''">AND g.group_code LIKE CONCAT('%', #{groupCode}, '%')</if>
+			<if test="groupName != null and groupName != ''">AND g.group_name LIKE CONCAT('%', #{groupName}, '%')</if>
+			<if test="groupImage != null and groupImage != ''">AND g.group_image = #{groupImage}</if>
+			<if test="administratorId != null and administratorId != ''">AND g.administrator_id = #{administratorId}</if>
+			<if test="createTime != null">AND g.create_time = #{createTime}</if>
+			<if test="createBy != null and createBy != ''">AND g.create_by = #{createBy}</if>
+		</where>
+	</select>
+</mapper>

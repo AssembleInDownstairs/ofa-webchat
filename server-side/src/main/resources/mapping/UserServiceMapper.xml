@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="webchat_gd.mapper.UserServiceMapper">
+	<resultMap id="userInfoMap" type="webchat_gd.dto.UserInfoDto">
+		<result column="user_id" property="userId" />
+		<result column="user_account" property="userAccount" />
+		<result column="nickname" property="nickname" />
+		<result column="phone" property="phone" />
+		<result column="province" property="province" />
+		<result column="city" property="city" />
+		<result column="gender" property="gender" />
+		<result column="birthday" property="birthday" />
+		<result column="profile_photo" property="profilePhoto" />
+		<result column="personal_profile" property="personalProfile" />
+	</resultMap>
+
+	<select id="findUserInfoById" resultMap="userInfoMap">
+		SELECT
+			u.user_id,
+			u.user_account,
+			u.nickname,
+			u.phone,
+			u.province,
+			u.city,
+			u.gender,
+			u.birthday,
+			u.profile_photo,
+			u.personal_profile
+		FROM
+			t_user u
+		WHERE
+			u.user_id = #{value}
+		LIMIT 1
+	</select>
+
+	<select id="findUserInfo" parameterType="webchat_gd.dto.UserInfoDto" resultMap="userInfoMap">
+		SELECT
+			u.user_id,
+			u.user_account,
+			u.nickname,
+			u.phone,
+			u.province,
+			u.city,
+			u.gender,
+			u.birthday,
+			u.profile_photo,
+			u.personal_profile
+		FROM
+			t_user u
+		<where>
+			<if test="userId != null and userId != ''">AND u.user_id = #{userId}</if>
+			<if test="userAccount != null and userAccount != ''">AND u.user_account LIKE CONCAT('%', #{userAccount}, '%')</if>
+			<if test="nickname != null and nickname != ''">AND u.nickname LIKE CONCAT('%', #{nickname}, '%')</if>
+			<if test="phone != null and phone != ''">AND u.phone LIKE CONCAT('%', #{phone}, '%')</if>
+			<if test="province != null and province != ''">AND u.province = #{province}</if>
+			<if test="city != null and city != ''">AND u.city = #{city}</if>
+			<if test="gender != null and gender != ''">AND u.gender = #{gender}</if>
+			<if test="birthday != null">AND u.birthday = #{birthday}</if>
+			<if test="profilePhoto != null and profilePhoto != ''">AND u.profile_photo = #{profilePhoto}</if>
+			<if test="personalProfile != null and personalProfile != ''">AND u.personal_profile = #{personalProfile}</if>
+		</where>
+	</select>
+
+	<update id="updateUserInfo" parameterType="webchat_gd.dto.UserInfoDto">
+		UPDATE t_user SET
+		<trim suffixOverrides=",">
+			<if test="userAccount != null">
+				user_account = #{userAccount},
+			</if>
+			<if test="nickname != null">
+				nickname = #{nickname},
+			</if>
+			<if test="phone != null">
+				phone = #{phone},
+			</if>
+			<if test="province != null">
+				province = #{province},
+			</if>
+			<if test="city != null">
+				city = #{city},
+			</if>
+			<if test="gender != null">
+				gender = #{gender},
+			</if>
+			<if test="birthday != null">
+				birthday = #{birthday},
+			</if>
+			<if test="profilePhoto != null">
+				profile_photo = #{profilePhoto},
+			</if>
+			<if test="personalProfile != null">
+				personal_profile = #{personalProfile},
+			</if>
+		</trim>
+		WHERE
+			user_id = #{userId}
+	</update>
+
+	<insert id="recordLoginInformation" parameterType="webchat_gd.entity.UserLoginRecord">
+		INSERT INTO t_user_login_record (login_record_id,user_id,record_time) VALUES (#{loginRecordId},#{userId},#{recordTime})
+	</insert>
+</mapper>

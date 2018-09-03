@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="webchat_gd.mapper.GroupServiceMapper">
+	<resultMap id="groupListInfoMap" type="webchat_gd.dto.GroupListInfoDto">
+		<result column="user_id" property="userId"/>
+		<result column="group_id" property="groupId"/>
+		<result column="group_code" property="groupCode"/>
+		<result column="group_name" property="groupName"/>
+		<result column="group_image" property="groupImage"/>
+		<result column="administrator_id" property="administratorId"/>
+		<result column="user_group_nickname" property="userGroupNickname"/>
+		<result column="group_menber_record_id" property="groupMenberRecordId"/>
+	</resultMap>
+
+	<select id="selectGroupInfo" parameterType="webchat_gd.dto.GroupListInfoDto" resultMap="groupListInfoMap">
+		SELECT
+			gm.user_id,
+			gm.group_id,
+			g.group_code,
+			g.group_name,
+			g.group_image,
+			g.administrator_id,
+			gm.user_group_nickname,
+			gm.group_menber_record_id
+		FROM
+			t_group_menber gm
+		INNER JOIN t_group g ON gm.group_id = g.group_id
+		<where>
+			AND !ISNULL(gm.last_contact_time)
+			<if test="userId != null and userId != ''">AND gm.user_id = #{userId}</if>
+			<if test="groupId != null and groupId != ''">AND gm.group_id = #{groupId}</if>
+			<if test="groupCode != null and groupCode != ''">AND g.group_code LIKE CONCAT('%', #{groupCode}, '%')</if>
+			<if test="groupName != null and groupName != ''">AND g.group_name LIKE CONCAT('%', #{groupName}, '%')</if>
+			<if test="groupImage != null and groupImage != ''">AND g.group_image = #{groupImage}</if>
+			<if test="administratorId != null and administratorId != ''">AND g.administrator_id = #{administratorId}</if>
+			<if test="userGroupNickname != null and userGroupNickname != ''">AND gm.user_group_nickname LIKE CONCAT('%', #{userGroupNickname}, '%')</if>
+		</where>
+	</select>
+</mapper>

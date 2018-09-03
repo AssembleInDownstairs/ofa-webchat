@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="webchat_gd.mapper.GroupMenberMapper">
+	<resultMap id="BaseResultMap" type="webchat_gd.entity.GroupMenber">
+		<result column="group_menber_record_id" jdbcType="VARCHAR"
+			property="groupMenberRecordId" />
+		<result column="group_id" jdbcType="VARCHAR" property="groupId" />
+		<result column="user_id" jdbcType="VARCHAR" property="userId" />
+		<result column="user_group_nickname" jdbcType="VARCHAR"
+			property="userGroupNickname" />
+		<result column="add_time" jdbcType="TIMESTAMP" property="addTime" />
+		<result column="last_contact_time" jdbcType="TIMESTAMP"
+			property="lastContactTime" />
+	</resultMap>
+	<resultMap id="groupMemberMap" type="webchat_gd.dto.GroupMemberDto">
+		<result column="group_menber_record_id" jdbcType="VARCHAR"
+			property="groupMenberRecordId" />
+		<result column="group_id" jdbcType="VARCHAR" property="groupId" />
+		<result column="user_id" jdbcType="VARCHAR" property="userId" />
+		<result column="user_group_nickname" jdbcType="VARCHAR"
+			property="userGroupNickname" />
+		<result column="add_time" jdbcType="TIMESTAMP" property="addTime" />
+		<result column="last_contact_time" jdbcType="TIMESTAMP"
+			property="lastContactTime" />
+		<result column="profile_photo" jdbcType="VARCHAR" property="profilePhoto" />
+		<result column="user_account" jdbcType="VARCHAR" property="userAccount" />
+		<result column="nickname" jdbcType="VARCHAR" property="nickname" />
+	</resultMap>
+	<insert id="insert" parameterType="webchat_gd.entity.GroupMenber">
+		insert into t_group_menber
+		(group_menber_record_id, group_id, user_id,
+		user_group_nickname,
+		add_time, last_contact_time
+		)
+		values
+		(#{groupMenberRecordId,jdbcType=VARCHAR},
+		#{groupId,jdbcType=VARCHAR},
+		#{userId,jdbcType=VARCHAR},
+		#{userGroupNickname,jdbcType=VARCHAR},
+		#{addTime,jdbcType=TIMESTAMP},
+		#{lastContactTime,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="webchat_gd.entity.GroupMenber">
+		insert into t_group_menber
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="groupMenberRecordId != null">
+				group_menber_record_id,
+			</if>
+			<if test="groupId != null">
+				group_id,
+			</if>
+			<if test="userId != null">
+				user_id,
+			</if>
+			<if test="userGroupNickname != null">
+				user_group_nickname,
+			</if>
+			<if test="addTime != null">
+				add_time,
+			</if>
+			<if test="lastContactTime != null">
+				last_contact_time,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="groupMenberRecordId != null">
+				#{groupMenberRecordId,jdbcType=VARCHAR},
+			</if>
+			<if test="groupId != null">
+				#{groupId,jdbcType=VARCHAR},
+			</if>
+			<if test="userId != null">
+				#{userId,jdbcType=VARCHAR},
+			</if>
+			<if test="userGroupNickname != null">
+				#{userGroupNickname,jdbcType=VARCHAR},
+			</if>
+			<if test="addTime != null">
+				#{addTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="lastContactTime != null">
+				#{lastContactTime,jdbcType=TIMESTAMP},
+			</if>
+		</trim>
+	</insert>
+
+	<delete id="deleteGroupMenber">
+		DELETE
+		FROM
+			t_group_menber
+		WHERE
+			group_menber_record_id = #{value}
+	</delete>
+
+	<delete id="deleteGroupMenberByGroupId">
+		DELETE
+		FROM
+			t_group_menber
+		WHERE
+			group_id = #{value}
+	</delete>
+	
+	<delete id="deleteGroupMenberByUG">
+		DELETE
+		FROM
+			t_group_menber
+		WHERE
+			user_id = #{userId}
+		AND group_id = #{groupId}
+	</delete>
+
+	<update id="updateGroupMenber" parameterType="webchat_gd.entity.GroupMenber">
+		UPDATE t_group_menber
+		<set>
+			<if test="groupId != null">
+			group_id = #{groupId},
+			</if>
+			<if test="userId != null">
+			user_id = #{userId},
+			</if>
+			<if test="userGroupNickname != null">
+			user_group_nickname = #{userGroupNickname},
+			</if>
+			<if test="addTime != null">
+			add_time = #{addTime},
+			</if>
+			<if test="lastContactTime != null">
+			last_contact_time = #{lastContactTime},
+			</if>
+		</set>
+		WHERE
+			group_menber_record_id = #{groupMenberRecordId}
+	</update>
+	
+	<update id="updateGroupMenberByUG" parameterType="webchat_gd.entity.GroupMenber">
+		UPDATE t_group_menber
+		<set>
+			<if test="userGroupNickname != null">
+			user_group_nickname = #{userGroupNickname},
+			</if>
+			<if test="addTime != null">
+			add_time = #{addTime},
+			</if>
+			<if test="lastContactTime != null">
+			last_contact_time = #{lastContactTime},
+			</if>
+		</set>
+		WHERE
+			user_id = #{userId}
+		AND group_id = #{groupId}
+	</update>
+	
+	<select id="selectGroupMenber" parameterType="webchat_gd.entity.GroupMenber" resultMap="groupMemberMap">
+		SELECT
+			gm.group_menber_record_id,
+			gm.group_id,
+			gm.user_id,
+			gm.user_group_nickname,
+			gm.add_time,
+			gm.last_contact_time,
+			u.profile_photo,
+			u.user_account,
+			u.nickname
+		FROM
+			t_group_menber gm
+		INNER JOIN t_user u ON gm.user_id = u.user_id
+		<where>
+			AND !ISNULL(gm.last_contact_time)
+			<if test="groupMenberRecordId != null and groupMenberRecordId != ''">AND gm.group_menber_record_id = #{groupMenberRecordId}</if>
+			<if test="groupId != null and groupId != ''">AND gm.group_id = #{groupId}</if>
+			<if test="userId != null and userId != ''">AND gm.user_id = #{userId}</if>
+			<if test="userGroupNickname != null and userGroupNickname != ''">AND gm.user_group_nickname LIKE CONCAT('%', #{userGroupNickname}, '%')</if>
+			<if test="addTime != null">AND gm.add_time = #{addTime}</if>
+			<if test="lastContactTime != null">AND gm.last_contact_time = #{lastContactTime}</if>
+		</where>
+	</select>
+</mapper>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="webchat_gd.mapper.ContactServiceMapper">
+
+	<resultMap id="contactInfoMap" type="webchat_gd.dto.ContactInfoDto">
+		<result column="user_id" property="userId"/>
+		<result column="contact_id" property="contactId"/>
+		<result column="user_account" property="contactAccount"/>
+		<result column="nickname" property="contactNickname"/>
+		<result column="phone" property="contactPhone"/>
+		<result column="province" property="contactProvince"/>
+		<result column="city" property="contactCity"/>
+		<result column="gender" property="contactGender"/>
+		<result column="birthday" property="contactBirthday"/>
+		<result column="profile_photo" property="contactProfilePhoto"/>
+		<result column="personal_profile" property="contactPersonalProfile"/>
+		<result column="remark" property="remark"/>
+	</resultMap>
+
+	<select id="selectContactInfo" parameterType="webchat_gd.dto.ContactInfoDto" resultMap="contactInfoMap">
+		SELECT
+			c.user_id,
+			c.contact_id,
+			u.user_account,
+			u.nickname,
+			u.phone,
+			u.province,
+			u.city,
+			u.gender,
+			u.birthday,
+			u.profile_photo,
+			u.personal_profile,
+			c.remark
+		FROM
+			t_contact c
+		INNER JOIN t_user u ON c.contact_id = u.user_id
+		<where>
+			AND !ISNULL(c.last_contact_time)
+			<if test="userId != null and userId != ''">AND c.user_id = #{userId}</if>
+			<if test="contactId != null and contactId != ''">AND c.contact_id = #{contactId}</if>
+			<if test="contactAccount != null and contactAccount != ''">AND u.user_account LIKE CONCAT('%', #{contactAccount}, '%')</if>
+			<if test="contactNickname != null and contactNickname != ''">AND u.nickname LIKE CONCAT('%', #{contactNickname}, '%')</if>
+			<if test="contactPhone != null and contactPhone != ''">AND u.phone LIKE CONCAT('%', #{contactPhone}, '%')</if>
+			<if test="contactProvince != null and contactProvince != ''">AND u.province = #{contactProvince}</if>
+			<if test="contactCity != null and contactCity != ''">AND u.city = #{contactCity}</if>
+			<if test="contactGender != null and contactGender != ''">AND u.gender = #{contactGender}</if>
+			<if test="contactBirthday != null and contactBirthday != ''">AND u.birthday = #{contactBirthday}</if>
+			<if test="contactProfilePhoto != null and contactProfilePhoto != ''">AND u.profile_photo = #{contactProfilePhoto}</if>
+			<if test="contactPersonalProfile != null and contactPersonalProfile != ''">AND u.personal_profile LIKE CONCAT('%', #{contactPersonalProfile}, '%')</if>
+			<if test="remark != null and remark != ''">AND c.remark LIKE CONCAT('%', #{remark}, '%')</if>
+		</where>
+	</select>
+
+</mapper>

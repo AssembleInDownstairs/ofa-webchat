@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="webchat_gd.mapper.GroupChatMessageMapper">
+	<resultMap id="BaseResultMap" type="webchat_gd.entity.GroupChatMessage">
+		<result column="group_chat_message_id" jdbcType="VARCHAR"
+			property="groupChatMessageId" />
+		<result column="group_id" jdbcType="VARCHAR" property="groupId" />
+		<result column="user_id" jdbcType="VARCHAR" property="userId" />
+		<result column="message_type" jdbcType="CHAR" property="messageType" />
+		<result column="message_content" jdbcType="VARCHAR" property="messageContent" />
+		<result column="time_of_send" jdbcType="TIMESTAMP" property="timeOfSend" />
+	</resultMap>
+	
+	<resultMap id="groupUnreadMessageMap" type="webchat_gd.dto.GroupUnreadMessageDto">
+		<result column="group_id" property="groupId" />
+		<result column="user_id" property="userId" />
+		<result column="last_contact_time" property="lastContactTime" />
+		<association property="unreadMessageNumber" column="groupId=group_id,timeOfSend=last_contact_time" 
+			select="selectUnreadGroupMessage"></association>
+		<association property="lastMenberId" column="group_id" select="selectLastGroupChatMemberId"></association>
+		<association property="lastChatMessage" column="group_id" select="selectLastGroupChatMessage"></association>
+	</resultMap>
+	
+	<insert id="insert" parameterType="webchat_gd.entity.GroupChatMessage">
+		insert into
+		t_group_chat_message (group_chat_message_id, group_id, user_id,
+		message_type, message_content, time_of_send
+		)
+		values
+		(#{groupChatMessageId,jdbcType=VARCHAR}, #{groupId,jdbcType=VARCHAR},
+		#{userId,jdbcType=VARCHAR},
+		#{messageType,jdbcType=CHAR},
+		#{messageContent,jdbcType=VARCHAR}, #{timeOfSend,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="webchat_gd.entity.GroupChatMessage">
+		insert into t_group_chat_message
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="groupChatMessageId != null">
+				group_chat_message_id,
+			</if>
+			<if test="groupId != null">
+				group_id,
+			</if>
+			<if test="userId != null">
+				user_id,
+			</if>
+			<if test="messageType != null">
+				message_type,
+			</if>
+			<if test="messageContent != null">
+				message_content,
+			</if>
+			<if test="timeOfSend != null">
+				time_of_send,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="groupChatMessageId != null">
+				#{groupChatMessageId,jdbcType=VARCHAR},
+			</if>
+			<if test="groupId != null">
+				#{groupId,jdbcType=VARCHAR},
+			</if>
+			<if test="userId != null">
+				#{userId,jdbcType=VARCHAR},
+			</if>
+			<if test="messageType != null">
+				#{messageType,jdbcType=CHAR},
+			</if>
+			<if test="messageContent != null">
+				#{messageContent,jdbcType=VARCHAR},
+			</if>
+			<if test="timeOfSend != null">
+				#{timeOfSend,jdbcType=TIMESTAMP},
+			</if>
+		</trim>
+	</insert>
+	
+	<delete id="deleteGroupChatMessage">
+		DELETE
+		FROM
+			t_group_chat_message
+		WHERE
+			group_chat_message_id = #{value}
+	</delete>
+	
+	<delete id="deleteGroupChatMessageByGroupId">
+		DELETE
+		FROM
+			t_group_chat_message
+		WHERE
+			group_id = #{value}
+	</delete>
+	
+	<select id="selectGroupChatMessage" parameterType="webchat_gd.entity.GroupChatMessage" resultMap="BaseResultMap">
+		SELECT
+			gcm.group_chat_message_id,
+			gcm.group_id,
+			gcm.user_id,
+			gcm.message_type,
+			gcm.message_content,
+			gcm.time_of_send
+		FROM
+			t_group_chat_message gcm
+		<where>
+			<if test="groupChatMessageId != null and groupChatMessageId != ''">gcm.group_chat_message_id = #{groupChatMessageId}</if>
+			<if test="groupId != null and groupId != ''">gcm.group_id = #{groupId}</if>
+			<if test="userId != null and userId != ''">gcm.user_id = #{userId}</if>
+			<if test="messageType != null and messageType != ''">gcm.message_type = #{messageType}</if>
+			<if test="messageContent != null and messageContent != ''">gcm.message_content LIKE CONCAT('%', #{messageContent}, '%')</if>
+			<if test="timeOfSend != null">gcm.time_of_send = #{timeOfSend}</if>
+		</where>
+		ORDER BY
+			gcm.time_of_send DESC
+	</select>
+	
+	<select id="selectGroupUnreadMessage" parameterType="webchat_gd.dto.GroupUnreadMessageDto" resultMap="groupUnreadMessageMap">
+		SELECT
+			gm.group_id,
+			gm.user_id,
+			gm.last_contact_time
+		FROM
+			t_group_menber gm
+		WHERE
+			gm.user_id = #{userId}
+		AND ! ISNULL(gm.last_contact_time)
+	</select>
+	
+	<select id="selectLastGroupChatMemberId" resultType="string">
+		SELECT
+			gcm.user_id
+		FROM
+			t_group_chat_message gcm
+		WHERE
+			gcm.group_id = #{groupId}
+		ORDER BY
+			gcm.time_of_send DESC
+		LIMIT 1
+	</select>
+	
+	<select id="selectLastGroupChatMessage" resultType="string">
+		SELECT
+			gcm.message_content
+		FROM
+			t_group_chat_message gcm
+		WHERE
+			gcm.group_id = #{groupId}
+		ORDER BY
+			gcm.time_of_send DESC
+		LIMIT 1
+	</select>
+	
+	<select id="selectUnreadGroupMessage" resultType="int">
+		SELECT
+			count(1)
+		FROM
+			t_group_chat_message gcm
+		WHERE
+			gcm.group_id = #{groupId}
+		AND gcm.time_of_send > #{timeOfSend}
+	</select>
+	
+	<select id="selectGrouptApplications" resultType="webchat_gd.dto.GroupApplicationDto">
+		SELECT
+			gm.group_id as groupId,
+			gm.user_id as userId
+		FROM
+			t_group_menber gm
+		INNER JOIN t_group g ON gm.group_id = g.group_id
+		WHERE
+			g.administrator_id = #{value}
+		AND ISNULL(gm.last_contact_time)
+	</select>
+	
+</mapper>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="webchat_gd.mapper.DictionaryServiceMapper">
+	<resultMap id="dictMessageMap" type="webchat_gd.dto.DictMessageDto">
+		<result column="dict_name" property="dictName" />
+		<result column="dict_code" property="dictCode" />
+		<result column="item_name" property="itemName" />
+		<result column="item_value" property="itemValue" />
+		<result column="language" property="language" />
+	</resultMap>
+
+	<select id="selectDictMessage" parameterType="webchat_gd.dto.DictMessageDto" resultMap="dictMessageMap">
+		SELECT
+			d.dict_name,
+			d.dict_code,
+			di.item_name,
+			di.item_value,
+			d.`language`
+		FROM
+			t_dict d
+		INNER JOIN t_dict_item di ON d.dict_id = di.dict_id
+		<where>
+			<if test="dictName != null and dictName != ''">AND d.dict_name LIKE CONCAT('%', #{dictName}, '%')</if>
+			<if test="dictCode != null and dictCode != ''">AND d.dict_code LIKE CONCAT('%', #{dictCode}, '%')</if>
+			<if test="itemName != null and itemName != ''">AND di.item_name LIKE CONCAT('%', #{itemName}, '%')</if>
+			<if test="itemValue != null and itemValue != ''">AND di.item_value LIKE CONCAT('%', #{itemValue}, '%')</if>
+			<if test="language != null and language != ''">AND d.`language` = #{language}</if>
+		</where>
+	</select>
+</mapper>
